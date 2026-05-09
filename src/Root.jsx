@@ -5,10 +5,19 @@ import { Logo } from "./HelloWorld/Logo";
 import { MotionBackground } from "./MotionBackground";
 import { OpeningHook } from "./OpeningHook";
 import { VideoDemo } from "./VideoDemo";
+import { ManageDemo } from "./ManageDemo";
 
 export const RemotionRoot = () => {
   return (
     <>
+      <Composition
+        id="ManageDemo"
+        component={ManageDemo}
+        durationInFrames={710}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
       <Composition
         id="VideoDemo"
         component={VideoDemo}
