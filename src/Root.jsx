@@ -2,15 +2,38 @@ import "./index.css";
 import { Composition } from "remotion";
 import { HelloWorld } from "./HelloWorld";
 import { Logo } from "./HelloWorld/Logo";
-
-// Each <Composition> is an entry in the sidebar!
+import { MotionBackground } from "./MotionBackground";
+import { OpeningHook } from "./OpeningHook";
+import { VideoDemo } from "./VideoDemo";
 
 export const RemotionRoot = () => {
   return (
     <>
       <Composition
-        // You can take the "id" to render a video:
-        // npx remotion render HelloWorld
+        id="VideoDemo"
+        component={VideoDemo}
+        durationInFrames={575}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="OpeningHook"
+        component={OpeningHook}
+        durationInFrames={210}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="MotionBackground"
+        component={MotionBackground}
+        durationInFrames={300}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
         id="HelloWorld"
         component={HelloWorld}
         durationInFrames={150}
