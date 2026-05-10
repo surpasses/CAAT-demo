@@ -47,56 +47,47 @@ const Camera = ({ focusX, focusY, zoom, children }) => {
 };
 
 // ─── Cursor ────────────────────────────────────────────────────────────────
-const Cursor = ({ x, y, opacity, zoom }) => (
-  <svg
-    viewBox="0 0 24 24"
-    width={48}
-    height={48}
-    style={{
-      position: "absolute",
-      left: x,
-      top: y,
-      transform: `scale(${1 / zoom})`,
-      transformOrigin: "top left",
-      opacity,
-      pointerEvents: "none",
-      filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.45))",
-    }}
-  >
-    <path
-      d="M3 2 L3 19 L8 14.5 L11 21 L13.5 19.7 L10.7 13.5 L17 13.5 Z"
-      fill="#fff"
-      stroke="#111"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-// ─── Click pulse ───────────────────────────────────────────────────────────
-const Click = ({ x, y, atFrame, zoom }) => {
+// On click frames the cursor briefly shrinks toward its tip — simulating
+// the tactile "press" of a real mouse click — instead of drawing a ring.
+const Cursor = ({ x, y, opacity, zoom, clickFrames = [] }) => {
   const frame = useCurrentFrame();
-  const t = frame - atFrame;
-  if (t < 0 || t > 22) return null;
-  const scale = interpolate(t, [0, 22], [0.4, 2.0], { extrapolateRight: "clamp" });
-  const opacity = interpolate(t, [0, 22], [0.6, 0], { extrapolateRight: "clamp" });
+
+  let pressScale = 1;
+  for (const cf of clickFrames) {
+    const t = frame - cf;
+    if (t >= -2 && t <= 6) {
+      const s = interpolate(t, [-2, 0, 6], [1, 0.78, 1], {
+        extrapolateLeft: "clamp",
+        extrapolateRight: "clamp",
+      });
+      if (s < pressScale) pressScale = s;
+    }
+  }
+
   return (
-    <div
+    <svg
+      viewBox="0 0 24 24"
+      width={48}
+      height={48}
       style={{
         position: "absolute",
-        left: x - 22,
-        top: y - 22,
-        width: 44,
-        height: 44,
-        borderRadius: "50%",
-        border: "2.5px solid #333",
-        background: "rgba(255,255,255,0.15)",
-        transform: `scale(${scale * (1 / zoom)})`,
-        transformOrigin: "center",
+        left: x,
+        top: y,
+        transform: `scale(${(1 / zoom) * pressScale})`,
+        transformOrigin: "top left",
         opacity,
         pointerEvents: "none",
+        filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.45))",
       }}
-    />
+    >
+      <path
+        d="M3 2 L3 19 L8 14.5 L11 21 L13.5 19.7 L10.7 13.5 L17 13.5 Z"
+        fill="#fff"
+        stroke="#111"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 };
 
@@ -144,12 +135,13 @@ export const VideoDemo = () => {
           src={staticFile("demo.mov")}
           style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
         />
-        {/* Click pulses timed to actions in the video */}
-        <Click x={880} y={237} atFrame={62}  zoom={zoom} />  {/* focus search bar */}
-        <Click x={697} y={500} atFrame={232} zoom={zoom} />  {/* bookmark icon */}
-        <Click x={707} y={188} atFrame={335} zoom={zoom} />  {/* bookmarked tab */}
-        <Click x={695} y={282} atFrame={428} zoom={zoom} />  {/* uni of sydney row */}
-        <Cursor x={cx} y={cy} opacity={cOpacity} zoom={zoom} />
+        <Cursor
+          x={cx}
+          y={cy}
+          opacity={cOpacity}
+          zoom={zoom}
+          clickFrames={[62, 232, 335, 428]}
+        />
       </Camera>
     </AbsoluteFill>
   );
